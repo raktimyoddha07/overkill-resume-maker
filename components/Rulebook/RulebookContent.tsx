@@ -1,10 +1,64 @@
+"use client";
+
+import { useState } from "react";
+import { Copy, Check, Bot, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { ALLOWED_TAGS, BLOCKED_TAGS } from "@/lib/sanitize";
 
+const AI_PROMPT = `You are generating HTML + CSS for a resume editor. Follow these rules exactly:
+
+CANVAS: 794px × 1123px (A4 at 96 DPI). Body padding: 40px top/bottom, 48px left/right. Content area: ~698px × 1043px. Design to fit one page.
+
+ALLOWED TAGS: div, span, section, header, footer, article, main, nav, aside, p, h1-h6, br, hr, strong, b, em, i, small, sub, sup, blockquote, cite, abbr, time, mark, ul, ol, li, dl, dt, dd, a, table, thead, tbody, tfoot, tr, th, td, caption, colgroup, col, img.
+
+BLOCKED (will error): script, style, iframe, object, embed, form, input, button, link, meta, base, frame, frameset, applet.
+
+CSS: Full CSS allowed. Avoid position:fixed. Use flexbox/grid for layout. Fonts: 'Roboto' and 'Inter' are pre-loaded. Font Awesome 6 icons available via <i class="fa-solid fa-envelope"></i>.
+
+ASSETS: Uploaded images are referenced by filename only: <img src="photo.png" alt="...">
+
+LINKS: <a href="mailto:..."> and <a href="https://..." target="_blank"> are preserved in PDF export.
+
+ATS RULES: Use real h1/h2 headings. No text in images. Layout must follow DOM reading order (no absolute columns). Section order: contact → summary → experience → education → skills.
+
+OUTPUT: Return only the HTML body content (no <html>/<head>/<body> tags) and separate CSS. Do not include <style> tags in HTML.`;
+
+const AI_PROMPT_LABEL = "AI Prompt copied!";
+
 function CodeBlock({ children }: { children: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(children);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 text-xs font-mono text-secondary-foreground">
-      <code>{children}</code>
-    </pre>
+    <div className="relative group">
+      <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 text-xs font-mono text-secondary-foreground leading-relaxed">
+        <code>{children}</code>
+      </pre>
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] bg-muted text-muted-foreground hover:bg-muted/80 border border-border"
+      >
+        {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
+  );
+}
+
+function SectionHeading({ num, children }: { num: string; children: React.ReactNode }) {
+  return (
+    <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold tracking-tight text-foreground">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground shrink-0">
+        {num}
+      </span>
+      {children}
+    </h2>
   );
 }
 
@@ -25,36 +79,75 @@ const ALLOWED_ELEMENTS: { tag: string; description: string; example: string }[] 
   { tag: "table, thead, tbody, tfoot", description: "Tabular data structures", example: "<table><thead><tr><th>Skill</th></tr></thead></table>" },
   { tag: "tr, th, td", description: "Table rows and cells", example: "<tr><td>TypeScript</td><td>Expert</td></tr>" },
   { tag: "caption, colgroup, col", description: "Table captions and column groups", example: "<caption>Publications</caption>" },
-  { tag: "img", description: "Images (uploads, https, or data URIs)", example: '<img src="/api/uploads/photo.png" alt="Photo" />' },
+  { tag: "img", description: "Images (uploads, https, or data URIs)", example: '<img src="photo.png" alt="Photo" />' },
 ];
 
 export default function RulebookContent() {
+  const [aiCopied, setAiCopied] = useState(false);
   const blockedEntries = Object.entries(BLOCKED_TAGS);
 
-  return (
-    <div className="mx-auto max-w-4xl px-6 py-10 text-foreground">
-      <p className="mb-10 text-sm text-muted-foreground">
-        Reference for writing resume HTML and CSS in Overkill Resume Maker.
-        Allowed tags: {ALLOWED_TAGS.length} elements. Blocked tags are rejected at compile time with a clear error.
-      </p>
+  const handleAiCopy = () => {
+    navigator.clipboard.writeText(AI_PROMPT);
+    setAiCopied(true);
+    toast.success(AI_PROMPT_LABEL);
+    setTimeout(() => setAiCopied(false), 2500);
+  };
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">1. Allowed HTML Elements</h2>
+  return (
+    <div className="mx-auto max-w-4xl px-6 py-10 text-foreground space-y-12">
+
+      {/* AI Guide */}
+      <section>
+        <div className="mb-4 flex items-center gap-2">
+          <Bot className="h-5 w-5 text-primary" />
+          <h2 className="text-base font-semibold tracking-tight text-foreground">AI Prompt Guide</h2>
+          <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">Copy & paste into any AI</span>
+        </div>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Use this prompt to instruct any AI assistant (ChatGPT, Claude, Gemini…) to generate valid resume HTML + CSS for this editor. It includes all constraints, dimensions, and rules.
+        </p>
+        <div className="relative">
+          <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-primary/30 bg-primary/5 p-5 text-xs font-mono leading-relaxed text-foreground">
+            {AI_PROMPT}
+          </pre>
+          <Button
+            size="sm"
+            variant={aiCopied ? "secondary" : "default"}
+            className="absolute top-3 right-3 h-7 gap-1.5 text-xs"
+            onClick={handleAiCopy}
+          >
+            {aiCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {aiCopied ? "Copied!" : "Copy Prompt"}
+          </Button>
+        </div>
+      </section>
+
+      <div className="border-t border-border" />
+
+      {/* Rulebook Header */}
+      <div className="flex items-center gap-2">
+        <BookOpen className="h-5 w-5 text-primary" />
+        <h2 className="text-base font-semibold tracking-tight text-foreground">Full Rulebook Reference</h2>
+      </div>
+
+      {/* 1. Allowed HTML */}
+      <section>
+        <SectionHeading num="1">Allowed HTML Elements</SectionHeading>
         <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-semibold text-xs">Tag</th>
-                <th className="px-4 py-3 font-semibold text-xs">Description</th>
-                <th className="px-4 py-3 font-semibold text-xs">Example</th>
+            <thead>
+              <tr className="border-b border-border bg-muted">
+                <th className="px-4 py-2.5 text-xs font-semibold text-muted-foreground">Tag</th>
+                <th className="px-4 py-2.5 text-xs font-semibold text-muted-foreground">Description</th>
+                <th className="px-4 py-2.5 text-xs font-semibold text-muted-foreground hidden md:table-cell">Example</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {ALLOWED_ELEMENTS.map((row) => (
-                <tr key={row.tag} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono text-xs font-medium text-foreground">{row.tag}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{row.description}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground/80">{row.example}</td>
+                <tr key={row.tag} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-2.5 font-mono text-xs font-medium text-primary">{row.tag}</td>
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground">{row.description}</td>
+                  <td className="px-4 py-2.5 font-mono text-[11px] text-muted-foreground/70 hidden md:table-cell">{row.example}</td>
                 </tr>
               ))}
             </tbody>
@@ -62,21 +155,23 @@ export default function RulebookContent() {
         </div>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">2. Blocked HTML Elements</h2>
+      {/* 2. Blocked HTML */}
+      <section>
+        <SectionHeading num="2">Blocked HTML Elements</SectionHeading>
+        <p className="mb-4 text-sm text-muted-foreground">These tags are rejected at compile time and will show a descriptive error.</p>
         <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-semibold text-xs">Tag</th>
-                <th className="px-4 py-3 font-semibold text-xs">Reason</th>
+            <thead>
+              <tr className="border-b border-border bg-muted">
+                <th className="px-4 py-2.5 text-xs font-semibold text-muted-foreground">Tag</th>
+                <th className="px-4 py-2.5 text-xs font-semibold text-muted-foreground">Reason</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {blockedEntries.map(([tag, reason]) => (
-                <tr key={tag} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono text-xs font-medium text-foreground">&lt;{tag}&gt;</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{reason}</td>
+                <tr key={tag} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-2.5 font-mono text-xs font-medium text-destructive">&lt;{tag}&gt;</td>
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground">{reason}</td>
                 </tr>
               ))}
             </tbody>
@@ -84,18 +179,15 @@ export default function RulebookContent() {
         </div>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">3. CSS Usage</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Full CSS is allowed in the CSS editor pane. Use classes and IDs from your HTML to style sections,
-          typography, spacing, flexbox, and grid layouts. Inline <code className="rounded bg-muted px-1.5 py-0.5 text-xs">style</code>
-          attributes on HTML elements are also permitted.
+      {/* 3. CSS */}
+      <section>
+        <SectionHeading num="3">CSS Usage</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Full CSS is allowed in the CSS pane. Use classes and IDs from your HTML for styling. Inline <code className="rounded bg-muted px-1.5 py-0.5 text-xs">style</code> attributes are also permitted.
         </p>
-        <p className="mb-4 text-sm text-muted-foreground">
-          <strong className="text-foreground">PDF caveat:</strong> Avoid <code className="rounded bg-muted px-1.5 py-0.5 text-xs">position: fixed</code>
-          for layout-critical content. Fixed elements may not render consistently across preview and PDF export.
-          Prefer flexbox, grid, or normal document flow.
-        </p>
+        <div className="mb-3 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          <strong className="text-foreground">⚠ PDF caveat:</strong> Avoid <code className="rounded bg-muted px-1.5 py-0.5 text-xs">position: fixed</code>. Fixed elements may not render consistently in PDF export. Prefer flexbox or grid.
+        </div>
         <CodeBlock>{`.entry-header {
   display: flex;
   justify-content: space-between;
@@ -109,11 +201,11 @@ export default function RulebookContent() {
 }`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">4. Icons</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Font Awesome 6 is loaded automatically in preview and PDF. Use <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;i&gt;</code>
-          tags with Font Awesome class names.
+      {/* 4. Icons */}
+      <section>
+        <SectionHeading num="4">Icons (Font Awesome 6)</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Font Awesome 6 is pre-loaded. Use <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;i&gt;</code> tags with Font Awesome class names.
         </p>
         <CodeBlock>{`<i class="fa-solid fa-envelope"></i> Email
 <i class="fa-solid fa-phone"></i> Phone
@@ -124,12 +216,11 @@ export default function RulebookContent() {
 <i class="fa-solid fa-calendar"></i> Calendar`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">5. Hyperlinks</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Use standard <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;a href=&quot;...&quot;&gt;</code> links.
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">target=&quot;_blank&quot;</code> is allowed for external URLs.
-          Links are preserved in the PDF export and remain clickable.
+      {/* 5. Hyperlinks */}
+      <section>
+        <SectionHeading num="5">Hyperlinks</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Standard <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;a href=&quot;...&quot;&gt;</code> links are supported. <code className="rounded bg-muted px-1.5 py-0.5 text-xs">target=&quot;_blank&quot;</code> is allowed. Links remain clickable in the exported PDF.
         </p>
         <CodeBlock>{`<a href="mailto:jane@example.com">jane@example.com</a>
 <a href="https://linkedin.com/in/janedoe" target="_blank" rel="noopener noreferrer">
@@ -137,35 +228,38 @@ export default function RulebookContent() {
 </a>`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">6. Images & Assets</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          You can upload images directly using the <strong>Assets</strong> tab in the editor. Images get saved to the root <code className="rounded bg-muted px-1.5 py-0.5 text-xs">uploads/</code> folder.
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">https://</code> and <code className="rounded bg-muted px-1.5 py-0.5 text-xs">data:</code> URIs are also allowed.
-          Always include descriptive <code className="rounded bg-muted px-1.5 py-0.5 text-xs">alt</code> text for accessibility and ATS parsers.
+      {/* 6. Images */}
+      <section>
+        <SectionHeading num="6">Images &amp; Assets</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Upload images in the <strong>Assets</strong> tab. Reference by filename only — no path needed. <code className="rounded bg-muted px-1.5 py-0.5 text-xs">https://</code> and <code className="rounded bg-muted px-1.5 py-0.5 text-xs">data:</code> URIs are also allowed.
         </p>
-        <CodeBlock>{`<!-- Uploaded asset reference -->
-<img src="/api/uploads/photo_123.png" alt="Jane Doe" width="80" height="80" class="profile-photo" />
+        <CodeBlock>{`<!-- Uploaded asset: just use the filename -->
+<img src="photo.png" alt="Jane Doe" width="80" height="80" class="profile-photo" />
 
 <!-- External HTTPS image -->
 <img src="https://example.com/photo.jpg" alt="Jane Doe" />`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">7. A4 Dimensions</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          The preview canvas and PDF export use standard A4 at 96 DPI: <strong>794px × 1123px</strong>.
-          The base stylesheet applies <strong>40px top/bottom</strong> and <strong>48px left/right</strong> body padding —
-          design within that content area for consistent margins.
+      {/* 7. A4 Dimensions */}
+      <section>
+        <SectionHeading num="7">A4 Dimensions</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          The preview canvas and PDF are standard A4 at 96 DPI: <strong className="text-foreground">794px × 1123px</strong>. Default body padding is 40px top/bottom and 48px left/right — giving a content area of ~698px × 1043px.
         </p>
         <CodeBlock>{`/* Canvas: 794 × 1123 px
-   Content area after default padding: ~694 × ~943 px */`}</CodeBlock>
+   Content area (after default padding): ~698 × 1043 px */
+
+body {
+  padding: 40px 48px; /* default — override as needed */
+}`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">8. Typography</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Roboto and Inter are loaded from Google Fonts. Reference them in your CSS:
+      {/* 8. Typography */}
+      <section>
+        <SectionHeading num="8">Typography</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Roboto and Inter are loaded from Google Fonts automatically. Reference them in your CSS:
         </p>
         <CodeBlock>{`body { font-family: 'Roboto', sans-serif; }
 .tagline { font-family: 'Inter', sans-serif; font-size: 15px; }
@@ -173,15 +267,15 @@ export default function RulebookContent() {
 /* Recommended scale */
 h1 { font-size: 28px; }
 h2 { font-size: 16px; }
-body, li { font-size: 13–14px; }
+body, li { font-size: 13px; }
 small { font-size: 11px; }`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">9. Tables</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Tables work well for skills grids, publication lists, or certification matrices.
-          Keep headers in <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;th&gt;</code> cells for ATS readability.
+      {/* 9. Tables */}
+      <section>
+        <SectionHeading num="9">Tables</SectionHeading>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Tables work well for skills grids, publication lists, or certification matrices. Use <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;th&gt;</code> cells for ATS readability.
         </p>
         <CodeBlock>{`<table>
   <thead>
@@ -194,15 +288,23 @@ small { font-size: 11px; }`}</CodeBlock>
 </table>`}</CodeBlock>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-xl font-semibold text-foreground tracking-tight">10. ATS Tips</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
-          <li>Do not create multi-column layouts with absolute positioning — ATS parsers read linear document order.</li>
-          <li>Use flexbox or grid with a logical DOM order that matches visual reading order.</li>
-          <li>Never put essential text inside images — parsers cannot read image content.</li>
-          <li>Use real headings (<code className="rounded bg-muted px-1.5 py-0.5 text-xs">h1</code>, <code className="rounded bg-muted px-1.5 py-0.5 text-xs">h2</code>) for section titles, not styled <code className="rounded bg-muted px-1.5 py-0.5 text-xs">div</code>s.</li>
-          <li>Include full URLs in link text or nearby text when possible for clarity.</li>
-          <li>Keep section order conventional: contact → summary → experience → education → skills.</li>
+      {/* 10. ATS Tips */}
+      <section>
+        <SectionHeading num="10">ATS Tips</SectionHeading>
+        <ul className="space-y-2.5 text-sm text-muted-foreground">
+          {[
+            "Do not use absolute positioning for multi-column layouts — ATS parsers read linear DOM order.",
+            "Use flexbox or grid with a logical DOM order that matches visual reading order.",
+            "Never put essential text inside images — parsers cannot read image content.",
+            <>Use real headings (<code className="rounded bg-muted px-1.5 py-0.5 text-xs">h1</code>, <code className="rounded bg-muted px-1.5 py-0.5 text-xs">h2</code>) for section titles, not styled <code className="rounded bg-muted px-1.5 py-0.5 text-xs">div</code>s.</>,
+            "Include full URLs in link text or nearby text for clarity.",
+            "Keep section order conventional: contact → summary → experience → education → skills.",
+          ].map((tip, i) => (
+            <li key={i} className="flex gap-2.5">
+              <span className="mt-0.5 h-4 w-4 shrink-0 text-primary">✓</span>
+              <span>{tip}</span>
+            </li>
+          ))}
         </ul>
       </section>
     </div>

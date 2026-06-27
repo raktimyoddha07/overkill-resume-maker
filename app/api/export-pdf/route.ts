@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildResumeDocument } from "@/lib/buildResumeDocument";
 import { getBrowser } from "@/lib/puppeteer-browser";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { inlineUploadsAsBase64 } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,10 @@ export async function POST(request: NextRequest) {
         : "resume";
 
     const sanitized = sanitizeHtml(html);
-    const fullHtml = buildResumeDocument(sanitized, css);
+    // Inline uploaded images as base64 so Puppeteer can render them
+    // without needing a live server (setContent has no base URL).
+    const sanitizedWithImages = inlineUploadsAsBase64(sanitized);
+    const fullHtml = buildResumeDocument(sanitizedWithImages, css);
 
     const browser = await getBrowser();
     page = await browser.newPage();

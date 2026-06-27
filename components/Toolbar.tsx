@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Download, Loader2 } from "lucide-react";
+import { FileText, Download, Loader2, Bot } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +75,17 @@ export default function Toolbar({
         >
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
             Rulebook
+          </Button>
+        </Link>
+
+        <Link
+          href="/ai-guide"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+            <Bot className="h-3.5 w-3.5" />
+            AI Guide
           </Button>
         </Link>
 
