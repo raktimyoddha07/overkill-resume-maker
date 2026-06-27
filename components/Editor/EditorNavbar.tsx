@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Play, Code2, Palette, Image as ImageIcon } from "lucide-react";
 import HtmlPane from "./HtmlPane";
 import CssPane from "./CssPane";
+import AssetsPane from "./AssetsPane";
+import { Button } from "@/components/ui/button";
 
 type EditorNavbarProps = {
   htmlValue: string;
@@ -22,47 +24,58 @@ export default function EditorNavbar({
   onCompile,
   isCompiling,
 }: EditorNavbarProps) {
-  const [activeTab, setActiveTab] = useState<"html" | "css">("html");
+  const [activeTab, setActiveTab] = useState<"html" | "css" | "assets">("html");
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-1 border-b border-gray-200 bg-gray-50 px-3 py-2">
-        <button
-          type="button"
-          aria-label="HTML tab"
-          onClick={() => setActiveTab("html")}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-            activeTab === "html"
-              ? "border border-gray-300 bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          HTML
-        </button>
-        <button
-          type="button"
-          aria-label="CSS tab"
-          onClick={() => setActiveTab("css")}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-            activeTab === "css"
-              ? "border border-gray-300 bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          CSS
-        </button>
-        <button
-          type="button"
-          aria-label="Compile"
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
+      <div className="flex shrink-0 items-center justify-between border-b border-border bg-muted/40 px-3 py-1.5">
+        <div className="flex items-center gap-1">
+          <Button
+            variant={activeTab === "html" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("html")}
+            aria-label="HTML tab"
+            className="h-8 gap-1.5 px-3 text-xs font-semibold"
+          >
+            <Code2 className="h-3.5 w-3.5 text-blue-500" />
+            HTML
+          </Button>
+          <Button
+            variant={activeTab === "css" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("css")}
+            aria-label="CSS tab"
+            className="h-8 gap-1.5 px-3 text-xs font-semibold"
+          >
+            <Palette className="h-3.5 w-3.5 text-amber-500" />
+            CSS
+          </Button>
+          <Button
+            variant={activeTab === "assets" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("assets")}
+            aria-label="Assets tab"
+            className="h-8 gap-1.5 px-3 text-xs font-semibold"
+          >
+            <ImageIcon className="h-3.5 w-3.5 text-emerald-500" />
+            Assets
+          </Button>
+        </div>
+
+        <Button
           onClick={onCompile}
           disabled={isCompiling}
-          className="ml-auto flex items-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-600"
+          aria-label="Compile resume"
+          size="sm"
+          className="h-8 gap-1.5 px-3.5 text-xs font-semibold shadow-sm"
         >
           {isCompiling ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-          ) : null}
-          {isCompiling ? "Compiling…" : "▶ Compile"}
-        </button>
+          ) : (
+            <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+          )}
+          {isCompiling ? "Compiling…" : "Compile"}
+        </Button>
       </div>
 
       <div className="relative flex-1 min-h-0">
@@ -91,6 +104,15 @@ export default function EditorNavbar({
             onChange={onCssChange}
             isVisible={activeTab === "css"}
           />
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            visibility: activeTab === "assets" ? "visible" : "hidden",
+            pointerEvents: activeTab === "assets" ? "auto" : "none",
+          }}
+        >
+          <AssetsPane />
         </div>
       </div>
     </div>

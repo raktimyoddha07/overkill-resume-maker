@@ -11,6 +11,7 @@ export function buildResumeDocument(sanitizedHtml: string, css: string): string 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <base href="/api/uploads/">
   <link rel="stylesheet" href="${GOOGLE_FONTS}">
   <link rel="stylesheet" href="${FONT_AWESOME_CDN}">
   <style>

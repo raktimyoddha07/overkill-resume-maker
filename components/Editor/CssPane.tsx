@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { editorTheme } from "@/lib/codemirror-theme";
+import { editorLightTheme, editorDarkTheme } from "@/lib/codemirror-theme";
+import { useTheme } from "next-themes";
 
 type CssPaneProps = {
   value: string;
@@ -11,11 +12,12 @@ type CssPaneProps = {
 
 export default function CssPane({ value, onChange, isVisible }: CssPaneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<{ destroy: () => void; requestMeasure: () => void } | null>(
-    null
-  );
+  const viewRef = useRef<any>(null);
+  const themeCompartmentRef = useRef<any>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -23,15 +25,19 @@ export default function CssPane({ value, onChange, isVisible }: CssPaneProps) {
     let destroyed = false;
 
     async function initEditor() {
-      const [{ basicSetup }, { css }, { EditorState }, { EditorView }] =
+      const [{ basicSetup }, { css }, { EditorState, Compartment }, { EditorView, keymap }, { indentWithTab }] =
         await Promise.all([
           import("codemirror"),
           import("@codemirror/lang-css"),
           import("@codemirror/state"),
           import("@codemirror/view"),
+          import("@codemirror/commands"),
         ]);
 
       if (destroyed || !containerRef.current) return;
+
+      const themeCompartment = new Compartment();
+      themeCompartmentRef.current = themeCompartment;
 
       const view = new EditorView({
         state: EditorState.create({
@@ -39,8 +45,9 @@ export default function CssPane({ value, onChange, isVisible }: CssPaneProps) {
           extensions: [
             basicSetup,
             css(),
+            keymap.of([indentWithTab]),
             EditorView.lineWrapping,
-            editorTheme,
+            themeCompartment.of(resolvedTheme === "dark" ? editorDarkTheme : editorLightTheme),
             EditorView.updateListener.of((update) => {
               if (update.docChanged) {
                 onChangeRef.current(update.state.doc.toString());
@@ -66,16 +73,23 @@ export default function CssPane({ value, onChange, isVisible }: CssPaneProps) {
   }, []);
 
   useEffect(() => {
+    if (viewRef.current && themeCompartmentRef.current) {
+      viewRef.current.dispatch({
+        effects: themeCompartmentRef.current.reconfigure(
+          resolvedTheme === "dark" ? editorDarkTheme : editorLightTheme
+        ),
+      });
+    }
+  }, [resolvedTheme]);
+
+  useEffect(() => {
     if (isVisible) {
       viewRef.current?.requestMeasure();
     }
   }, [isVisible]);
 
   useEffect(() => {
-    const view = viewRef.current as {
-      state: { doc: { toString: () => string; length: number } };
-      dispatch: (arg: unknown) => void;
-    } | null;
+    const view = viewRef.current;
     if (!view) return;
     const current = view.state.doc.toString();
     if (value !== current) {

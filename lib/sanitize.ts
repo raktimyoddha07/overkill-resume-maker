@@ -127,6 +127,7 @@ export function sanitizeHtml(raw: string): string {
       img: ["http", "https", "data"],
       a: ["http", "https", "mailto"],
     },
+    allowProtocolRelative: true,
     allowVulnerableTags: false,
     disallowedTagsMode: "discard",
   });

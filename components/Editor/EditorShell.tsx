@@ -1,6 +1,7 @@
 "use client";
 
 import EditorNavbar from "./EditorNavbar";
+import { AlertCircle, X } from "lucide-react";
 
 type EditorShellProps = {
   htmlValue: string;
@@ -24,20 +25,23 @@ export default function EditorShell({
   isCompiling,
 }: EditorShellProps) {
   return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
+    <div className="flex h-full min-h-0 flex-col bg-background">
       {compileError && (
         <div
           role="alert"
-          className="flex shrink-0 items-center justify-between gap-3 border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+          className="flex shrink-0 items-center justify-between gap-3 border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-xs font-medium text-destructive"
         >
-          <span>{compileError}</span>
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{compileError}</span>
+          </div>
           <button
             type="button"
             aria-label="Dismiss compile error"
             onClick={onDismissError}
-            className="shrink-0 rounded px-2 py-0.5 text-red-600 hover:bg-red-100"
+            className="shrink-0 rounded p-0.5 hover:bg-destructive/20 transition-colors"
           >
-            ✕
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}

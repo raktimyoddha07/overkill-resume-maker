@@ -12,6 +12,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 import { buildResumeDocument } from "@/lib/buildResumeDocument";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { STARTER_CSS, STARTER_HTML } from "@/lib/templates";
+import { Button } from "@/components/ui/button";
 
 async function saveWithRetry(
   id: string,
@@ -217,24 +218,22 @@ export default function EditorWorkspace() {
 
   if (loadError && resumeId) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-white">
-        <p className="text-sm text-gray-700" role="alert">
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-background">
+        <p className="text-sm text-foreground font-medium" role="alert">
           Could not load resume
         </p>
-        <button
-          type="button"
+        <Button
           aria-label="Retry loading resume"
           onClick={() => setLoadAttempt((n) => n + 1)}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
         >
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       <Toolbar
         title={title}
         onTitleChange={setTitle}
@@ -256,8 +255,8 @@ export default function EditorWorkspace() {
           />
         </Panel>
 
-        <Separator className="group relative w-1.5 shrink-0 bg-gray-200 transition hover:bg-gray-400">
-          <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-gray-400 opacity-0 transition group-hover:opacity-100" />
+        <Separator className="group relative w-1.5 shrink-0 bg-border transition hover:bg-muted-foreground/30">
+          <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-muted-foreground/50 opacity-0 transition group-hover:opacity-100" />
         </Separator>
 
         <Panel defaultSize={50} minSize={25}>
