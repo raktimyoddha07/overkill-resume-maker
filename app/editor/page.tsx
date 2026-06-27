@@ -1,11 +1,16 @@
+import { Suspense } from "react";
 import EditorWorkspace from "@/components/EditorWorkspace";
-import Toolbar from "@/components/Toolbar";
 
 export default function EditorPage() {
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <Toolbar />
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center text-sm text-gray-500">
+          Loading editor…
+        </div>
+      }
+    >
       <EditorWorkspace />
-    </div>
+    </Suspense>
   );
 }

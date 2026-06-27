@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Roboto } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -27,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${roboto.variable} ${inter.variable}`}>
-      <body className="min-h-screen bg-white font-sans antialiased">{children}</body>
+      <body className="min-h-screen bg-white font-sans antialiased">
+        {children}
+        <Toaster position="bottom-right" />
+      </body>
     </html>
   );
 }
