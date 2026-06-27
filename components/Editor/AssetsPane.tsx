@@ -190,7 +190,7 @@ export default function AssetsPane() {
                       <button
                         className="text-xs font-medium text-primary hover:underline text-left break-all cursor-pointer"
                         title={asset.filename}
-                        onClick={() => copyToClipboard(asset.filename, \`name-\${asset.filename}\`, "filename")}
+                        onClick={() => copyToClipboard(asset.filename, `name-${asset.filename}`, "filename")}
                       >
                         {asset.filename}
                       </button>
@@ -199,39 +199,7 @@ export default function AssetsPane() {
                       </Badge>
                     </div>
 
-                    <div className="flex flex-col gap-1 pt-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[11px] justify-between px-2 font-mono"
-                        onClick={() =>
-                          copyToClipboard(htmlTag, \`html-\${asset.filename}\`, "HTML <img> tag")
-                        }
-                      >
-                        <span className="truncate">Copy HTML Tag</span>
-                        {copiedKey === \`html-\${asset.filename}\` ? (
-                          <Check className="h-3 w-3 text-green-500 shrink-0" />
-                        ) : (
-                          <Copy className="h-3 w-3 text-muted-foreground shrink-0" />
-                        )}
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[11px] justify-between px-2 font-mono"
-                        onClick={() =>
-                          copyToClipboard(cssUrl, \`css-\${asset.filename}\`, "CSS url()")
-                        }
-                      >
-                        <span className="truncate">Copy CSS url()</span>
-                        {copiedKey === \`css-\${asset.filename}\` ? (
-                          <Check className="h-3 w-3 text-green-500 shrink-0" />
-                        ) : (
-                          <Copy className="h-3 w-3 text-muted-foreground shrink-0" />
-                        )}
-                      </Button>
-                    </div>
+                    
                   </CardContent>
                 </Card>
               );

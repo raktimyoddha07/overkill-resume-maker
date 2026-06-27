@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getUploadsDir } from "@/lib/uploads";
 
 const MIME_TYPES: Record<string, string> = {
   ".png": "image/png",
@@ -21,7 +22,8 @@ export async function GET(
 ) {
   try {
     const filename = path.basename(params.filename);
-    const filePath = path.join(process.cwd(), "uploads", filename);
+    const uploadsDir = getUploadsDir();
+    const filePath = path.join(uploadsDir, filename);
 
     if (!fs.existsSync(filePath)) {
       return new NextResponse("File not found", { status: 404 });

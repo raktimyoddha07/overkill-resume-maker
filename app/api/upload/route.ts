@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getUploadsDir } from "@/lib/uploads";
 
-const UPLOADS_DIR = path.join(process.cwd(), "uploads");
-
-function ensureUploadsDir() {
-  if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+function ensureUploadsDir(dir: string) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
 }
 
 export async function GET() {
   try {
-    ensureUploadsDir();
-    const files = fs.readdirSync(UPLOADS_DIR);
+    const uploadsDir = getUploadsDir();
+    ensureUploadsDir(uploadsDir);
+    const files = fs.readdirSync(uploadsDir);
     const assets = files.map((filename) => {
-      const filePath = path.join(UPLOADS_DIR, filename);
+      const filePath = path.join(uploadsDir, filename);
       const stats = fs.statSync(filePath);
       return {
         filename,
@@ -34,7 +34,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    ensureUploadsDir();
+    const uploadsDir = getUploadsDir();
+    ensureUploadsDir(uploadsDir);
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     const baseName = path.basename(originalName, ext).replace(/[^\w-]/g, "_");
     const timestamp = Date.now();
     const filename = `${baseName}_${timestamp}${ext.toLowerCase()}`;
-    const targetPath = path.join(UPLOADS_DIR, filename);
+    const targetPath = path.join(uploadsDir, filename);
 
     fs.writeFileSync(targetPath, buffer);
 
@@ -71,7 +72,8 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    ensureUploadsDir();
+    const uploadsDir = getUploadsDir();
+    ensureUploadsDir(uploadsDir);
     const { searchParams } = new URL(request.url);
     const filename = searchParams.get("filename");
 
@@ -80,7 +82,7 @@ export async function DELETE(request: Request) {
     }
 
     const safeFilename = path.basename(filename);
-    const filePath = path.join(UPLOADS_DIR, safeFilename);
+    const filePath = path.join(uploadsDir, safeFilename);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

@@ -2,7 +2,7 @@ import { ALLOWED_TAGS, BLOCKED_TAGS } from "@/lib/sanitize";
 
 function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="overflow-x-auto rounded-lg border border-border bg-zinc-950 p-4 text-xs font-mono text-zinc-100">
+    <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 text-xs font-mono text-secondary-foreground">
       <code>{children}</code>
     </pre>
   );

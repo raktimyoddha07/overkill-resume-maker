@@ -54,7 +54,7 @@ export default function PreviewShell({ previewSrc }: PreviewShellProps) {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-muted/40 dark:bg-zinc-950">
+    <div className="flex h-full min-h-0 flex-col bg-muted/40 dark:bg-background">
       {/* Control Bar */}
       <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-4 py-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
