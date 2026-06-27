@@ -29,6 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${roboto.variable} ${inter.variable}`}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+      </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <ThemeProvider
           attribute="class"

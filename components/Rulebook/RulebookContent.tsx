@@ -205,15 +205,29 @@ export default function RulebookContent() {
       <section>
         <SectionHeading num="4">Icons (Font Awesome 6)</SectionHeading>
         <p className="mb-3 text-sm text-muted-foreground">
-          Font Awesome 6 is pre-loaded. Use <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;i&gt;</code> tags with Font Awesome class names.
+          Font Awesome 6 is pre-loaded. Use <code className="rounded bg-muted px-1.5 py-0.5 text-xs">&lt;i&gt;</code> tags with Font Awesome class names. No imports or CSS wrappers are required.
         </p>
-        <CodeBlock>{`<i class="fa-solid fa-envelope"></i> Email
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CodeBlock>{`<i class="fa-solid fa-envelope"></i> Email
 <i class="fa-solid fa-phone"></i> Phone
 <i class="fa-solid fa-location-dot"></i> Location
 <i class="fa-brands fa-linkedin"></i> LinkedIn
 <i class="fa-brands fa-github"></i> GitHub
 <i class="fa-solid fa-globe"></i> Portfolio
 <i class="fa-solid fa-calendar"></i> Calendar`}</CodeBlock>
+          <div className="flex flex-col gap-2.5 p-5 rounded-lg border border-border bg-card justify-center">
+            <span className="text-xs font-semibold text-muted-foreground mb-1">Live Icon Preview:</span>
+            <div className="grid grid-cols-2 gap-2 text-sm text-foreground">
+              <div className="flex items-center gap-2"><i className="fa-solid fa-envelope text-primary w-4"></i> Email</div>
+              <div className="flex items-center gap-2"><i className="fa-solid fa-phone text-primary w-4"></i> Phone</div>
+              <div className="flex items-center gap-2"><i className="fa-solid fa-location-dot text-primary w-4"></i> Location</div>
+              <div className="flex items-center gap-2"><i className="fa-brands fa-linkedin text-primary w-4"></i> LinkedIn</div>
+              <div className="flex items-center gap-2"><i className="fa-brands fa-github text-primary w-4"></i> GitHub</div>
+              <div className="flex items-center gap-2"><i className="fa-solid fa-globe text-primary w-4"></i> Portfolio</div>
+              <div className="flex items-center gap-2"><i className="fa-solid fa-calendar text-primary w-4"></i> Calendar</div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 5. Hyperlinks */}

@@ -15,6 +15,7 @@ A professional, local-first Next.js web application designed to help you constru
 - **📁 Customizable Local Assets**: Upload images (PNG, JPG, SVG, WebP, etc.) to use directly inside your resume. The storage path is fully configurable using the `.env` file (`UPLOADS_DIR`).
 - **🤖 Built-in AI Guide**: Dedicated prompt library (`/ai-guide`) to copy-paste rules and constraints directly into any LLM (Claude, ChatGPT, Gemini) for error-free resume code generation.
 - **📖 Local Rulebook**: Reference sheet (`/rulebook`) of allowed HTML tags, styling guidelines, and ATS recommendations.
+- **✨ Built-in Font Awesome Icons**: Pre-loaded Font Awesome 6 icons available out-of-the-box (e.g. `<i class="fa-solid fa-phone"></i>`). No imports or setup needed.
 - **📄 Selected PDF Export**: High-fidelity PDF downloads powered by Puppeteer that preserve hyperlinks and native text nodes for ATS scanners.
 
 ---
