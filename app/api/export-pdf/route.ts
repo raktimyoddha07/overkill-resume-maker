@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
 
     const browser = await getBrowser();
     page = await browser.newPage();
-    await page.setContent(fullHtml, { waitUntil: "networkidle0" });
+    await page.setContent(fullHtml, { waitUntil: "load" });
+    await page.evaluateHandle("document.fonts.ready");
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     const safeFilename = title.replace(/[^\w\s-]/g, "").trim() || "resume";
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${safeFilename}.pdf"`,
